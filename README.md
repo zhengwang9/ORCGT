@@ -1,4 +1,7 @@
 # ORCGT: Ollivier-Ricci Curvature-based Graph Model for Lung STAS Prediction
+This is an implementation of our paper ***ORCGT: Ollivier-Ricci Curvature-based Graph Model for Lung STAS Prediction***, which is accepted by **MICCAI 2024**.
+
+The pipeline of our method is shown in Pipeline Figure
 ![Overview](/Pics/overview-5.pdf)
 
 ## Installation
@@ -12,31 +15,37 @@ conda create -n env python=3.9
 conda activate env
 pip install -r requirements.txt
 ```
+## Image Preprocession and Feature Extraction
+
+We used [CLAM](https://github.com/mahmoodlab/CLAM) to split the slides and extract featurers of patches by [Ctranspath](https://github.com/Xiyue-Wang/TransPath)   
 
 ## Major Tumor Margin Extraction
-We employ a pretrained HoVerNet to classify tumor patches based on their cell count. Then, we derive the mask for the major tumor region using UNet with tumor dentisy map.
+We employ a pretrained [HoVerNet](https://github.com/vqdang/hover_net) to classify tumor patches based on their cell count. Then, we construct the tumor density map by tumor_density.py. Afterr that, we derive the mask for the major tumor region using UNet by tumor density map. Finally we select patches in ring of major tumor margin by choose_ring.py.
 ```bash
-#classify tumor patches
+# classify tumor patches
 python ./hv_res_post-process/choose_tumor_patch.py
-#make tumor density map
+# construct tumor density map
 python ./hv_res_post-process/tumor_density.py
-#choose Ring patches
+# select Ring patches
 python ./hv_res_post-process/choose_ring.py
 ```
 
-## Training
+## Graph Construction
 
-You also can download the processed graph data [here](https://cloud.189.cn/t/NziQRbUrAJju). The access code is: dei3
+We construct the graph with curvature by two steps: extract feature of patches (nodes) in major tumor margin and construct graph.
 
-## Training
-First, setting the data splits and hyperparameters in the file ***train.py***. Then, experiments can be run using the following command-line:
 ```bash
-cd train
-python train_<experiments>.py
+# extract feats in ring.
+python ./graph_construction/extract_huandai_feats.py
+# construct graph
+python ./graph_construction/ToPyG_curva.py
 ```
-The trained model will be saved in the folder ***SavedModels***. 
 
+## Training
 
-
-
+```bash
+# train the model
+cd train
+python train_curapooling.py
+```
 
