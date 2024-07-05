@@ -8,7 +8,6 @@ import argparse
 from torch import nn
 import pickle
 import torch.optim as optim
-# sys.path.append('/data3/cm/MTM/patchGCN/pytorch_geometric/graphgym')
 from dataloader_graph_wz import StasDataset_cv_curva
 from torch.optim import lr_scheduler
 import numpy as np
