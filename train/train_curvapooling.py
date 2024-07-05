@@ -8,11 +8,11 @@ import argparse
 from torch import nn
 import pickle
 import torch.optim as optim
-from dataloader_graph_wz import StasDataset_cv_curva
+from dataloader_graph import StasDataset_cv_curva
 from torch.optim import lr_scheduler
 import numpy as np
 import torch.nn.functional as F
-from PatchGCN import PatchgcnCurvaPool
+from models import ORCG
 from torch_geometric.data import DataLoader
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report, roc_auc_score
@@ -48,10 +48,10 @@ parser.add_argument('--version', type=str, default='test')
 parser.add_argument('--seed', type=int, default=9888)
 
 
-parser.add_argument('--cv_fold_id_path', type=str, default='/data10/wz/wz/Total_New/5_fold_864.pkl')
+parser.add_argument('--cv_fold_id_path', type=str, default=' ')
 parser.add_argument('--root', type=str,
-                    default='/data10/wz/wz/Total_New/Feats/huandai_Graph_40x_512')
-parser.add_argument('--data_label_path', type=str, default='/data10/wz/wz/Total_New/label_STAS_all.csv')
+                    default=' ')
+parser.add_argument('--data_label_path', type=str, default=' ')
 parser.add_argument('--model_save_path', type=str, default=None)
 parser.add_argument('--reg', type=float, default=10e-5, metavar='R',
                     help='weight decay')
@@ -67,8 +67,8 @@ version=args.version
 i=args.fold
 device = [torch.device(f'cuda:{args.device}')]
 save_id='curvapool_newM'
-log_root=os.path.join('/data10/wz/wz/Total_New/train_log',save_id)
-model_root=os.path.join('/data10/wz/wz/Total_New/model',save_id)
+log_root=os.path.join(' ',save_id)
+model_root=os.path.join(' ',save_id)
 if not os.path.exists(log_root):
     os.makedirs(log_root)
 if not os.path.exists(model_root):
@@ -135,7 +135,7 @@ with open(args.cv_fold_id_path, 'rb') as file:
 
 
 
-def train_zzf(train_loader):
+def train(train_loader):
     model.train()
     train_loss = 0.
     train_error = 0.
@@ -162,14 +162,9 @@ def train_zzf(train_loader):
         #if batch_idx == 0:
         print('Y_prob:', F.softmax(logits, dim=-1))
 
-        # loss=loss_fn(logits,label)
-        # train_loss += loss.item()
-
         error = Y_hat != label
         train_error += error.item()
-        # print('m',m)
-        # print('out_batch',out_batch)
-        # print('logits_batch',logits_batch)
+
 
         if m % batch_size == 1:
             # print('OK')
@@ -182,7 +177,6 @@ def train_zzf(train_loader):
             label_batch.append(label.item())
 
         if m % batch_size == 0 and len(np.unique(label_batch)) == 2:
-            # print(out_batch.shape,torch.LongTensor(label_batch).to(device[0]))
             sim_loss = lsim_loss_cal(out_batch, torch.LongTensor(label_batch).to(device[0]))
             ce_loss = loss_fn(logits_batch, torch.LongTensor(label_batch).to(device[0]))
             loss = ce_loss + sim_loss
@@ -210,7 +204,7 @@ def train_zzf(train_loader):
 
 
 
-def val_zzf(val_loader):
+def val(val_loader):
     model.eval()
     test_loss = 0.
     test_error = 0.
@@ -229,9 +223,6 @@ def val_zzf(val_loader):
         loss = loss_fn(logits, label)
         test_loss += loss.item()
 
-        # error, predicted_label = model.calculate_classification_error(data, bag_label)
-        # test_error += error
-        # predicted_label=Y_prob.argmax(dim=1)
         Y_prob = logits.cpu().data.numpy()
         scores.append(Y_prob[0][1])
         error = Y_hat != label
@@ -270,7 +261,7 @@ def val_zzf(val_loader):
     return test_loss, f1_score_class_1, acc, roc
 
 
-def test_zzf(test_loader):
+def test(test_loader):
     model.eval()
     test_loss = 0.
     test_error = 0.
@@ -289,9 +280,7 @@ def test_zzf(test_loader):
         loss = loss_fn(logits, label)
         test_loss += loss.item()
 
-        # error, predicted_label = model.calculate_classification_error(data, bag_label)
-        # test_error += error
-        # predicted_label=Y_prob.argmax(dim=1)
+
         Y_prob = logits.cpu().data.numpy()
         scores.append(Y_prob[0][1])
         error = Y_hat != label
@@ -351,7 +340,7 @@ if __name__ == "__main__":
                              shuffle=False,
                              **kwargs)
     # print(len(test_loader))
-    model = PatchgcnCurvaPool(num_layers=numlayers,hidden_dim=hiddim).to(device[0])
+    model = ORCG(num_layers=numlayers,hidden_dim=hiddim).to(device[0])
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=args.reg)
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
     loss_fn = nn.CrossEntropyLoss(weight=torch.FloatTensor([0.35, 0.65]).to(device[0]))  # 285
@@ -375,17 +364,17 @@ if __name__ == "__main__":
         logging.info('\nEpoch {}'.format(epoch))
 
         print('Start Training : Epoch {}'.format(epoch))
-        train_loss = train_zzf(train_loader)
+        train_loss = train(train_loader)
 
         logging.info('Train Loss : {}'.format(train_loss))
 
         print('\nStart Validing:')
-        val_loss, val_1_f1, acc_val, val_auc = val_zzf(val_loader)
+        val_loss, val_1_f1, acc_val, val_auc = val(val_loader)
         # print(acc_val)
         train_losses.append(train_loss)
         val_losses.append(val_loss)
         print('\nStart Testing:')
-        test_loss, test_1_f1, acc_test, _ = test_zzf(test_loader)
+        test_loss, test_1_f1, acc_test, _ = test(test_loader)
         if epoch >= 20 and (val_1_f1 + acc_val) >= val_eeror:
             best_epoch_add = epoch
             torch.save(model, f'{model_root}/best_f1_add_acc_{date}_v{version}_fold{i}.pth')
