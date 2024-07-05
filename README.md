@@ -20,7 +20,7 @@ pip install -r requirements.txt
 We used [CLAM](https://github.com/mahmoodlab/CLAM) to split the slides and extract featurers of patches by [Ctranspath](https://github.com/Xiyue-Wang/TransPath)   
 
 ## Major Tumor Margin Extraction
-We employ a pretrained [HoVerNet](https://github.com/vqdang/hover_net) to classify tumor patches based on their cell count. Then, we construct the tumor density map by tumor_density.py. Afterr that, we derive the mask for the major tumor region using UNet by tumor density map. Finally we select patches in ring of major tumor margin by choose_ring.py.
+We employ a pretrained [HoVerNet](https://github.com/vqdang/hover_net) to classify tumor patches based on their cell count. Then, we construct the tumor density map by *tumor_density.py*. After that, we derive the mask for the major tumor region using UNet by tumor density map. Finally we select patches in ring of major tumor margin by *choose_ring.py*.
 ```bash
 # classify tumor patches
 python ./hv_res_post-process/choose_tumor_patch.py
