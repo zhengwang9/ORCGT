@@ -1,6 +1,6 @@
 # [MICCAI 2024] ORCGT: Ollivier-Ricci Curvature-based Graph Model for Lung STAS Prediction
 Min Cen*, Zheng Wang*, Zhenfeng Zhuang, Hong Zhang, Dan Su, Zhen Bao, Weiwei Wei, Baptiste Magnier, Lequan Yu, Liansheng Wang†
-![Overview](/Pics/overview-5.pdf)
+![Overview](/Pics/ORCGT.png)
 
 ## Installation
 - Clone the repo:
