@@ -23,18 +23,9 @@ python ./hv_res_post-process/tumor_density.py
 #choose Ring patches
 python ./hv_res_post-process/choose_ring.py
 ```
-```bash
 
-```
-shows how to transform a histological image into the hierarchical graphs. After the data processing is completed, put all hierarchical graphs into a folder. The form is as follows:
-```bash
-PYG_Data
-   └── Dataset
-          ├── pyg_data_1.pkl
-          ├── pyg_data_2.pkl
-                    :
-          └── pyg_data_n.pkl
-```
+## Training
+
 You also can download the processed graph data [here](https://cloud.189.cn/t/NziQRbUrAJju). The access code is: dei3
 
 ## Training
