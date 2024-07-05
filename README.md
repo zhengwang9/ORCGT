@@ -1,5 +1,5 @@
 # ORCGT: Ollivier-Ricci Curvature-based Graph Model for Lung STAS Prediction
-![Overview](./Pics/overview-5.pdf)
+![Overview](/Pics/overview-5.pdf)
 
 ## Installation
 Clone the repo:
@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 
 ## Major Tumor Margin Extraction
-We employ a pretrained HoVerNet to classify tumor patches based on their cell count. Then, we derive the mask for the major tumor region using UNet.
+We employ a pretrained HoVerNet to classify tumor patches based on their cell count. Then, we derive the mask for the major tumor region using UNet with tumor dentisy map.
 ```bash
 #classify tumor patches
 python ./hv_res_post-process/choose_tumor_patch.py
